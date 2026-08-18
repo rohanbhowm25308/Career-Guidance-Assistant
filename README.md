@@ -41,6 +41,34 @@ python app.py
 
 Then open **http://localhost:5000** in your browser.
 
+## Deploying to Render
+
+1. Push this repo to GitHub.
+2. On [render.com](https://dashboard.render.com), click **New → Web Service** and connect your GitHub repo.
+3. Fill in the form:
+
+   | Field | Value |
+   |---|---|
+   | **Language** | Python 3 |
+   | **Branch** | `main` |
+   | **Root Directory** | *(leave blank)* |
+   | **Build Command** | `pip install -r requirements.txt` |
+   | **Start Command** | `gunicorn app:app --bind 0.0.0.0:$PORT` |
+
+4. Scroll down to **Environment Variables** and add:
+
+   | Key | Value |
+   |---|---|
+   | `GROQ_API_KEY` | your real Groq key (`gsk_...`) |
+   | `GROQ_MODEL` | `openai/gpt-oss-120b` *(optional — already the code default)* |
+
+   This matters: `.env` is git-ignored on purpose so your key never ends up
+   on GitHub, which means Render doesn't have it either unless you add it
+   here manually.
+
+5. Click **Create Web Service**. Render builds and deploys automatically;
+   future pushes to `main` redeploy it.
+
 ## What works without an API key
 
 Everything **except** the features that call Groq directly still works:
