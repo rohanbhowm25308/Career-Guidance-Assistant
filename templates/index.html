@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aether — AI Career Guidance Assistant</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div class="bg-orbs"></div>
+<div class="grid-overlay"></div>
+
+<div class="app">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text"><b>AETHER</b><span>AI Career Guidance</span></div>
+    </div>
+
+    <div>
+      <div class="nav-group-label">Profile</div>
+      <button class="nav-btn active" data-panel="dashboard"><span class="ico">◈</span> Digital Twin</button>
+      <button class="nav-btn" data-panel="profile"><span class="ico">◎</span> Student Profile</button>
+    </div>
+
+    <div>
+      <div class="nav-group-label">Career Engine</div>
+      <button class="nav-btn" data-panel="recommend"><span class="ico">✦</span> Recommendations</button>
+      <button class="nav-btn" data-panel="compare-me"><span class="ico">⇄</span> You vs Career</button>
+      <button class="nav-btn" data-panel="whatif"><span class="ico">?</span> "What If" Simulator</button>
+      <button class="nav-btn" data-panel="pathgen"><span class="ico">⌥</span> Career Path Generator</button>
+    </div>
+
+    <div>
+      <div class="nav-group-label">Growth</div>
+      <button class="nav-btn" data-panel="roadmap"><span class="ico">↝</span> Learning Roadmap</button>
+      <button class="nav-btn" data-panel="skillgap"><span class="ico">⚠</span> Skill Gap Analysis</button>
+      <button class="nav-btn" data-panel="goals"><span class="ico">☑</span> Goal Tracker</button>
+    </div>
+
+    <div>
+      <div class="nav-group-label">Industry Intel</div>
+      <button class="nav-btn" data-panel="jobmatch"><span class="ico">◲</span> Job Description Analyzer</button>
+      <button class="nav-btn" data-panel="salary"><span class="ico">₹</span> Salary &amp; Growth</button>
+      <button class="nav-btn" data-panel="radar"><span class="ico">◉</span> Opportunity Radar</button>
+    </div>
+
+    <div>
+      <div class="nav-group-label">AI Mentor</div>
+      <button class="nav-btn" data-panel="chat"><span class="ico">✺</span> Career Chatbot</button>
+      <button class="nav-btn" data-panel="interview"><span class="ico">🎤</span> Mock Interview</button>
+      <button class="nav-btn" data-panel="quiz"><span class="ico">✓</span> Skill Quiz</button>
+    </div>
+
+    <div>
+      <div class="nav-group-label">Portfolio</div>
+      <button class="nav-btn" data-panel="resume"><span class="ico">▤</span> Resume Assistant</button>
+      <button class="nav-btn" data-panel="projects"><span class="ico">✎</span> Project Generator</button>
+      <button class="nav-btn" data-panel="portfolio"><span class="ico">◆</span> Portfolio Strength</button>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="main">
+
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbar-title">Career Digital Twin</div>
+        <div class="topbar-sub" id="topbar-sub">A live snapshot of your career readiness</div>
+      </div>
+      <div class="gamify-bar">
+        <div class="gamify-chip">⚡ <b id="xp-val">0</b> XP</div>
+        <div class="gamify-chip">🏅 Lvl <b id="level-val">1</b></div>
+        <div class="gamify-chip">🔥 <b id="streak-val">0</b>d streak</div>
+      </div>
+    </div>
+
+    <div class="next-action-banner">
+      <div class="icon">🧠</div>
+      <div class="txt">
+        <b>Your Next Best Action</b>
+        <span id="next-action-text">Fill in your student profile to unlock personalized guidance.</span>
+      </div>
+    </div>
+
+    <!-- ---------- DASHBOARD / DIGITAL TWIN ---------- -->
+    <section class="panel active" id="panel-dashboard">
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>Career Readiness Score</h3>
+          <div style="text-align:center; padding: 10px 0;">
+            <div style="font-family:var(--font-display); font-size:40px; color:var(--cyan);" id="twin-readiness">--</div>
+            <div style="color:var(--text-dim); font-size:12px;">out of 100</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Top Career Match</h3>
+          <div style="text-align:center; padding: 10px 0;">
+            <div style="font-family:var(--font-display); font-size:17px;" id="twin-top-career">--</div>
+            <div style="color:var(--text-dim); font-size:12px; margin-top:6px;" id="twin-top-score">Complete your profile</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Portfolio Strength</h3>
+          <div style="text-align:center; padding: 10px 0;">
+            <div style="font-family:var(--font-display); font-size:40px; color:var(--violet-2);" id="twin-portfolio">--</div>
+            <div style="color:var(--text-dim); font-size:12px;">out of 100</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid cols-2" style="margin-top:16px;">
+        <div class="card">
+          <h3>Readiness Breakdown</h3>
+          <div id="twin-breakdown"></div>
+        </div>
+        <div class="card">
+          <h3>Achievements <span class="muted">unlock badges as you progress</span></h3>
+          <div class="badge-grid" id="badge-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- PROFILE ---------- -->
+    <section class="panel" id="panel-profile">
+      <div class="section-head">
+        <h1>Smart Student Profile</h1>
+        <p>This powers every recommendation in Aether. The more complete it is, the sharper your matches.</p>
+      </div>
+
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Basics</h3>
+          <div class="field"><label>Full Name</label><input type="text" id="p-name" placeholder="e.g. Rohan Bhowmik"></div>
+          <div class="field"><label>Age</label><input type="number" id="p-age" placeholder="20"></div>
+          <div class="field"><label>Education Level</label>
+            <select id="p-education">
+              <option>Undergraduate</option><option>Postgraduate</option><option>Diploma</option><option>High School</option>
+            </select>
+          </div>
+          <div class="field"><label>Degree / Branch</label><input type="text" id="p-degree" placeholder="e.g. B.Tech CSE"></div>
+          <div class="field"><label>Semester / Year</label><input type="text" id="p-year" placeholder="e.g. 5th Semester"></div>
+          <div class="field"><label>CGPA</label><input type="number" step="0.01" id="p-cgpa" placeholder="8.4"></div>
+        </div>
+
+        <div class="card">
+          <h3>Skills <span class="muted">select all that apply · 20 options</span></h3>
+          <div class="chip-select" id="chip-skills">
+            <div class="chip" data-val="python">Python</div>
+            <div class="chip" data-val="java">Java</div>
+            <div class="chip" data-val="c">C</div>
+            <div class="chip" data-val="c++">C++</div>
+            <div class="chip" data-val="javascript">JavaScript</div>
+            <div class="chip" data-val="typescript">TypeScript</div>
+            <div class="chip" data-val="rust">Rust</div>
+            <div class="chip" data-val="go">Go</div>
+            <div class="chip" data-val="ruby">Ruby</div>
+            <div class="chip" data-val="php">PHP</div>
+            <div class="chip" data-val="sql">SQL</div>
+            <div class="chip" data-val="html/css">HTML / CSS</div>
+            <div class="chip" data-val="react">React</div>
+            <div class="chip" data-val="node.js">Node.js</div>
+            <div class="chip" data-val="ai">AI / ML</div>
+            <div class="chip" data-val="data science">Data Science</div>
+            <div class="chip" data-val="cloud computing">Cloud Computing</div>
+            <div class="chip" data-val="devops">DevOps</div>
+            <div class="chip" data-val="communication">Communication</div>
+            <div class="chip" data-val="leadership">Leadership</div>
+          </div>
+
+          <h3 style="margin-top:18px;">Interests <span class="muted">20 options</span></h3>
+          <div class="chip-select" id="chip-interests">
+            <div class="chip" data-val="ai">AI</div>
+            <div class="chip" data-val="data science">Data Science</div>
+            <div class="chip" data-val="software development">Software Development</div>
+            <div class="chip" data-val="cybersecurity">Cybersecurity</div>
+            <div class="chip" data-val="finance">Finance</div>
+            <div class="chip" data-val="healthcare">Healthcare</div>
+            <div class="chip" data-val="design">Design</div>
+            <div class="chip" data-val="research">Research</div>
+            <div class="chip" data-val="web development">Web Development</div>
+            <div class="chip" data-val="mobile development">Mobile Development</div>
+            <div class="chip" data-val="game development">Game Development</div>
+            <div class="chip" data-val="cloud computing">Cloud Computing</div>
+            <div class="chip" data-val="devops">DevOps</div>
+            <div class="chip" data-val="full stack development">Full Stack Development</div>
+            <div class="chip" data-val="frontend development">Frontend Development</div>
+            <div class="chip" data-val="machine learning engineering">ML Engineering</div>
+            <div class="chip" data-val="blockchain">Blockchain</div>
+            <div class="chip" data-val="robotics">Robotics</div>
+            <div class="chip" data-val="product management">Product Management</div>
+            <div class="chip" data-val="digital marketing">Digital Marketing</div>
+          </div>
+
+          <h3 style="margin-top:18px;">Career Personality <span class="muted">10 options</span></h3>
+          <div class="chip-select" id="chip-personality">
+            <div class="chip" data-val="problem solver">Problem Solver</div>
+            <div class="chip" data-val="creative thinker">Creative Thinker</div>
+            <div class="chip" data-val="leader">Leader</div>
+            <div class="chip" data-val="research-oriented">Research-Oriented</div>
+            <div class="chip" data-val="analytical thinker">Analytical Thinker</div>
+            <div class="chip" data-val="team player">Team Player</div>
+            <div class="chip" data-val="time management">Time Management</div>
+            <div class="chip" data-val="critical thinking">Critical Thinking</div>
+            <div class="chip" data-val="adaptability">Adaptability</div>
+            <div class="chip" data-val="detail-oriented">Detail-Oriented</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid cols-2" style="margin-top:16px;">
+        <div class="card">
+          <h3>Career Goals</h3>
+          <div class="field"><textarea id="p-goals" placeholder="e.g. Become an AI Engineer at a top product company within 3 years"></textarea></div>
+        </div>
+        <div class="card">
+          <h3>Portfolio Snapshot</h3>
+          <div class="field"><label>Number of Projects Completed</label><input type="number" id="p-projects" value="0"></div>
+          <div class="field"><label>Completed an Internship?</label>
+            <select id="p-internship"><option value="no">No</option><option value="yes">Yes</option></select>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn" id="save-profile-btn">💾 Save Profile</button>
+      <span id="profile-saved-msg" style="margin-left:12px; color:var(--good); font-size:12.5px;"></span>
+    </section>
+
+    <!-- ---------- RECOMMENDATIONS ---------- -->
+    <section class="panel" id="panel-recommend">
+      <div class="section-head">
+        <h1>AI Career Recommendation Engine</h1>
+        <p>Skills + Interests + Education + Personality + Academic Performance + Goals → ranked, explainable matches.</p>
+      </div>
+      <button class="btn" id="run-recommend-btn">✦ Generate Recommendations</button>
+      <div class="card" style="margin-top:16px;">
+        <h3>Career Compatibility</h3>
+        <div id="rec-list" class="empty-state">Run the engine to see your ranked matches.</div>
+      </div>
+    </section>
+
+    <!-- ---------- YOU VS CAREER ---------- -->
+    <section class="panel" id="panel-compare-me">
+      <div class="section-head">
+        <h1>"You vs Career" Dashboard</h1>
+        <p>Compare your current profile against the ideal profile for a target career.</p>
+      </div>
+      <div class="card">
+        <div class="field" style="max-width:320px;"><label>Target Career</label>
+          <select id="compare-career-select"></select>
+        </div>
+        <button class="btn" id="run-compare-btn">Compare Now</button>
+        <div id="compare-output" style="margin-top:16px;"></div>
+      </div>
+    </section>
+
+    <!-- ---------- WHAT IF SIMULATOR ---------- -->
+    <section class="panel" id="panel-whatif">
+      <div class="section-head">
+        <h1>"What If?" Career Simulator</h1>
+        <p>See how your match score shifts if you learn new skills or ship more projects.</p>
+      </div>
+      <div class="card">
+        <div class="grid cols-2">
+          <div class="field"><label>Target Career</label><select id="whatif-career"></select></div>
+          <div class="field"><label>Extra Projects (hypothetical)</label><input type="number" id="whatif-projects" value="0" min="0" max="10"></div>
+        </div>
+        <div class="field"><label>Skills to Hypothetically Add</label>
+          <div class="chip-select" id="whatif-skills">
+            <div class="chip" data-val="ai">AI / ML</div>
+            <div class="chip" data-val="data science">Data Science</div>
+            <div class="chip" data-val="cloud computing">Cloud Computing</div>
+            <div class="chip" data-val="devops">DevOps</div>
+            <div class="chip" data-val="sql">SQL</div>
+            <div class="chip" data-val="react">React</div>
+            <div class="chip" data-val="communication">Communication</div>
+            <div class="chip" data-val="leadership">Leadership</div>
+          </div>
+        </div>
+        <button class="btn" id="run-whatif-btn">Simulate</button>
+        <div id="whatif-output" style="margin-top:16px;"></div>
+      </div>
+    </section>
+
+    <!-- ---------- PATH GENERATOR ---------- -->
+    <section class="panel" id="panel-pathgen">
+      <div class="section-head">
+        <h1>AI Career Path Generator</h1>
+        <p>Not sure what to choose? Describe your interest and see the branching paths.</p>
+      </div>
+      <div class="card">
+        <div class="field"><label>What field interests you?</label>
+          <input type="text" id="pathgen-input" placeholder="e.g. I want to work in AI but don't know what to choose">
+        </div>
+        <button class="btn" id="run-pathgen-btn">Generate Paths</button>
+        <div id="pathgen-output" style="margin-top:16px;"></div>
+      </div>
+    </section>
+
+    <!-- ---------- ROADMAP ---------- -->
+    <section class="panel" id="panel-roadmap">
+      <div class="section-head">
+        <h1>Personalized Learning Roadmap</h1>
+        <p>A step-by-step path toward your target career, with progress tracking.</p>
+      </div>
+      <div class="card">
+        <div class="grid cols-2">
+          <div class="field"><label>Target Career</label><select id="roadmap-career"></select></div>
+          <div class="field"><label>Duration</label>
+            <select id="roadmap-duration"><option value="3-month">3 Months</option><option value="6-month" selected>6 Months</option><option value="1-year">1 Year</option></select>
+          </div>
+        </div>
+        <button class="btn" id="run-roadmap-btn">Build Roadmap</button>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <h3>Roadmap <span class="muted">click a step to mark it complete</span></h3>
+        <div class="roadmap-flow" id="roadmap-flow"><div class="empty-state">Build a roadmap to see it here.</div></div>
+      </div>
+    </section>
+
+    <!-- ---------- SKILL GAP ---------- -->
+    <section class="panel" id="panel-skillgap">
+      <div class="section-head">
+        <h1>Skill Gap Analysis</h1>
+        <p>See exactly what separates you from your target career.</p>
+      </div>
+      <div class="card">
+        <div class="field" style="max-width:320px;"><label>Target Career</label><select id="skillgap-career"></select></div>
+        <button class="btn" id="run-skillgap-btn">Analyze Gap</button>
+        <div id="skillgap-output" style="margin-top:16px;"></div>
+      </div>
+    </section>
+
+    <!-- ---------- GOAL TRACKER ---------- -->
+    <section class="panel" id="panel-goals">
+      <div class="section-head">
+        <h1>AI Goal Tracker</h1>
+        <p>Set a goal, break it into milestones, and track it over time.</p>
+      </div>
+      <div class="card">
+        <div class="field"><label>🎯 Goal</label><input type="text" id="goal-text" placeholder="e.g. Become an AI Engineer"></div>
+        <button class="btn" id="add-goal-btn">Add Milestones</button>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <h3>Milestones</h3>
+        <div id="goal-list" class="empty-state">Add a goal to generate milestones.</div>
+      </div>
+    </section>
+
+    <!-- ---------- JOB DESCRIPTION ANALYZER ---------- -->
+    <section class="panel" id="panel-jobmatch">
+      <div class="section-head">
+        <h1>Job Description Analyzer</h1>
+        <p>Paste a real job listing to see your match score and missing skills.</p>
+      </div>
+      <div class="card">
+        <div class="field"><textarea id="jd-text" rows="8" placeholder="Paste the full job description here..."></textarea></div>
+        <button class="btn" id="run-jobmatch-btn">Analyze Match</button>
+        <div id="jobmatch-output" style="margin-top:16px;"></div>
+      </div>
+    </section>
+
+    <!-- ---------- SALARY ---------- -->
+    <section class="panel" id="panel-salary">
+      <div class="section-head">
+        <h1>Salary Estimator &amp; Career Growth</h1>
+        <p>Estimated ranges (INR/year) based on career, experience and your profile.</p>
+      </div>
+      <div class="card">
+        <div class="grid cols-2">
+          <div class="field"><label>Career</label><select id="salary-career"></select></div>
+          <div class="field"><label>Years of Experience</label><input type="number" id="salary-exp" value="0" min="0" max="20"></div>
+        </div>
+        <button class="btn" id="run-salary-btn">Estimate</button>
+        <div id="salary-output" style="margin-top:16px;"></div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <h3>Career Comparison</h3>
+        <div id="compare-table"></div>
+      </div>
+    </section>
+
+    <!-- ---------- OPPORTUNITY RADAR ---------- -->
+    <section class="panel" id="panel-radar">
+      <div class="section-head">
+        <h1>Career Opportunity Radar</h1>
+        <p>Where the market is heading right now.</p>
+      </div>
+      <div class="grid cols-4" id="radar-grid"></div>
+    </section>
+
+    <!-- ---------- CHATBOT ---------- -->
+    <section class="panel" id="panel-chat">
+      <div class="section-head">
+        <h1>24/7 AI Career Chatbot</h1>
+        <p>Context-aware — it remembers your saved profile for this session. Powered by Groq via your <code>.env</code> API key.</p>
+      </div>
+      <div class="card">
+        <div class="quick-prompts">
+          <button data-q="Should I learn Python or Java?">Python or Java?</button>
+          <button data-q="How can I become an AI Engineer?">Become an AI Engineer</button>
+          <button data-q="What skills do I need for Google?">Skills for Google</button>
+          <button data-q="Which career is better for me based on my profile?">Which career fits me?</button>
+        </div>
+        <div class="chat-window" id="chat-window">
+          <div class="msg ai">Hi! I'm your AI career mentor. Save your profile first so I can tailor my advice — then ask me anything.</div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="Ask your career question...">
+          <button class="mic-btn" id="chat-mic-btn" type="button" title="Speak your question" aria-label="Voice input">🎙️</button>
+          <button class="btn" id="chat-send-btn">Send</button>
+        </div>
+        <div id="chat-mic-status" class="mic-status"></div>
+      </div>
+    </section>
+
+    <!-- ---------- MOCK INTERVIEW ---------- -->
+    <section class="panel" id="panel-interview">
+      <div class="section-head">
+        <h1>AI Mock Interview</h1>
+        <p>Practice technical, HR, or behavioral rounds with instant AI feedback.</p>
+      </div>
+      <div class="card">
+        <div class="grid cols-2">
+          <div class="field"><label>Interview Mode</label>
+            <select id="interview-mode"><option>Technical</option><option>HR</option><option>Behavioral</option></select>
+          </div>
+          <div class="field"><label>Target Career</label><select id="interview-career"></select></div>
+        </div>
+        <button class="btn" id="start-interview-btn">🎤 Start Interview</button>
+        <button class="btn ghost" id="end-interview-btn" style="display:none;">Finish &amp; Get Score</button>
+      </div>
+
+      <div class="card" style="margin-top:16px; display:none;" id="interview-card">
+        <h3>Current Question</h3>
+        <div id="interview-question" style="font-size:14.5px; margin-bottom:12px;"></div>
+        <div class="field">
+          <div style="display:flex; gap:8px; align-items:flex-start;">
+            <textarea id="interview-answer" placeholder="Type your answer... (or use the mic)" style="flex:1;"></textarea>
+            <button class="mic-btn" id="interview-mic-btn" type="button" title="Speak your answer" aria-label="Voice input">🎙️</button>
+          </div>
+          <div id="interview-mic-status" class="mic-status"></div>
+        </div>
+        <button class="btn" id="submit-answer-btn">Submit Answer &amp; Next Question</button>
+      </div>
+
+      <div class="card" style="margin-top:16px; display:none;" id="interview-results">
+        <h3>Interview Score</h3>
+        <div id="interview-scorebars"></div>
+        <p id="interview-feedback" style="color:var(--text-mid); font-size:13px; margin-top:10px;"></p>
+      </div>
+    </section>
+
+    <!-- ---------- QUIZ ---------- -->
+    <section class="panel" id="panel-quiz">
+      <div class="section-head">
+        <h1>AI-Generated Skill Quiz</h1>
+        <p>Adaptive difficulty — questions are generated for your chosen topic and level.</p>
+      </div>
+      <div class="card">
+        <div class="grid cols-3">
+          <div class="field"><label>Topic</label><input type="text" id="quiz-topic" value="Python"></div>
+          <div class="field"><label>Level</label>
+            <select id="quiz-level"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select>
+          </div>
+          <div class="field"><label># Questions</label><input type="number" id="quiz-count" value="5" min="3" max="10"></div>
+        </div>
+        <button class="btn" id="run-quiz-btn">Generate Quiz</button>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div id="quiz-output" class="empty-state">Generate a quiz to begin.</div>
+      </div>
+    </section>
+
+    <!-- ---------- RESUME ---------- -->
+    <section class="panel" id="panel-resume">
+      <div class="section-head">
+        <h1>AI Resume Assistant</h1>
+        <p>Paste your resume text for an instant AI review and ATS-style score.</p>
+      </div>
+      <div class="card">
+        <div class="field"><textarea id="resume-text" rows="10" placeholder="Paste your resume text here..."></textarea></div>
+        <button class="btn" id="run-resume-btn">Analyze Resume</button>
+      </div>
+      <div class="card" id="resume-output-card" style="margin-top:16px; display:none;">
+        <h3>Resume Score</h3>
+        <div id="resume-output"></div>
+      </div>
+    </section>
+
+    <!-- ---------- PROJECT GENERATOR ---------- -->
+    <section class="panel" id="panel-projects">
+      <div class="section-head">
+        <h1>AI Project Generator &amp; Project→Career Analyzer</h1>
+        <p>Get a project idea tailored to your profile, or check which careers an existing project supports.</p>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <h3>Generate a Project Idea</h3>
+          <button class="btn" id="run-projectgen-btn">✎ Give Me a Project Idea</button>
+          <div id="projectgen-output" style="margin-top:14px;"></div>
+        </div>
+        <div class="card">
+          <h3>Project → Career Analyzer</h3>
+          <div class="field"><textarea id="project-desc" placeholder="e.g. Customer Segmentation using K-Means"></textarea></div>
+          <button class="btn" id="run-p2c-btn">Analyze</button>
+          <div id="p2c-output" style="margin-top:14px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- PORTFOLIO STRENGTH ---------- -->
+    <section class="panel" id="panel-portfolio">
+      <div class="section-head">
+        <h1>Portfolio Strength Analyzer</h1>
+        <p>Based on your profile snapshot — update it any time in the Profile tab.</p>
+      </div>
+      <div class="card">
+        <button class="btn" id="run-portfolio-btn">Analyze Portfolio</button>
+        <div id="portfolio-output" style="margin-top:16px;"></div>
+      </div>
+    </section>
+
+    <footer class="credits">Aether — AI Career Guidance Assistant · Flask + Groq · Built for hackathon demo</footer>
+  </main>
+</div>
+
+<script src="{{ url_for('static', filename='js/background.js') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script src="{{ url_for('static', filename='js/career-engine.js') }}"></script>
+<script src="{{ url_for('static', filename='js/mentor.js') }}"></script>
+<script src="{{ url_for('static', filename='js/tools.js') }}"></script>
+<script src="{{ url_for('static', filename='js/voice.js') }}"></script>
+</body>
+</html>
